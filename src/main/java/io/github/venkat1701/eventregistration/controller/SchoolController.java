@@ -94,14 +94,24 @@ public class SchoolController {
         School school = schoolRepository.findSchoolById(id);
         var newPart = school.getParticipants();
         var newEven = school.getEvents();
+
         newPart.add(participant);
-        Event event = new Event(String.format("E%02d",(newEven.size()+1)),participant.getParticipantEvent(), new ArrayList<>());
-        newEven.add(event);
-        school.setEvents(newEven);
+
+        // Check if participantEvent already exists
+        boolean eventExists = newEven.stream()
+                .anyMatch(event -> event.getName().equals(participant.getParticipantEvent()));
+
+        if (!eventExists) {
+            Event event = new Event(String.format("E%02d", (newEven.size() + 1)), participant.getParticipantEvent(), new ArrayList<>());
+            newEven.add(event);
+            school.setEvents(newEven);
+        }
+
         school.setParticipants(newPart);
         participantRepository.save(participant);
         saveSchool(school);
     }
+
 
 
     /**
